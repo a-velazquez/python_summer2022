@@ -249,7 +249,7 @@ tup.count('a')
 # A dictionary is a collection which is unordered, changeable and indexed 
 
 # We use {} to create a dictionary
-myInfo = {"name" : "annamaria", "age" : 50, "research" : ["IR", "methods"]}
+myInfo = {"name" : "anna maria", "age" : 50, "research" : ["IR", "methods"]}
 
 # We call elements using keys.
 myInfo
@@ -267,7 +267,7 @@ myInfo["last_name"] = "prati"
 myInfo
 
 # We can modify elements
-myInfo["name"] = 'mia'
+myInfo["name"] = 'annamaria'
 myInfo["research"] = 'methods'
 myInfo
 
