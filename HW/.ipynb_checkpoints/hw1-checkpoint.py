@@ -18,13 +18,11 @@ class Portfolio:
 
     def addCash(self, amount):
         self.investments["cash"] += amount
-        if amount < 0:
-            self.transactions.append(f"Cash Transaction : \t{amount}\n")
-        else:
-            self.transactions.append(f"Cash Transaction : {amount}\n")
+        self.transactions.append(f"Cash Deposit : {amount}\n")
 
     def withdrawCash(self, amount):
         self.addCash(-1 * amount)
+        self.transactions.append(f"Cash Withdrawal : \t{amount}\n")
 
     def __str__(self):
         # fix: display with $ and 2 decimal places
@@ -33,20 +31,18 @@ class Portfolio:
         portfolio_str += "Stocks:\n"
         for symbol, info in self.investments["stock"].items():
             shares = info["shares"]
-            portfolio_str += f"\t{symbol} - {shares}\n"
+            portfolio_str += f"\t{symbol} : {shares}\n"
         portfolio_str += "Mutual Funds:\n"
         for symbol, info in self.investments["mutual_funds"].items():
             shares = round(info["shares"], 2)
-            portfolio_str += f"\t{symbol} - {shares}\n"
+            portfolio_str += f"\t{symbol} : {shares}\n"
         return portfolio_str
-
-    def history(self):
-        print("".join(self.transactions))
 
     def buyStock(self, shares: int, stock):
         self.investments["stock"][stock.symbol] = {
             "shares": shares,
             "purchase_price": stock.price,
+            "selling_price": stock.sell(),
         }
         amount = shares * stock.price
         self.withdrawCash(amount)
@@ -54,24 +50,21 @@ class Portfolio:
 
     def sellStock(self, symbol, shares: int):
         self.investments["stock"][symbol]["shares"] -= shares
-        selling_price = uniform(
-            self.investments["stock"][symbol]["purchase_price"] * 0.5,
-            self.investments["stock"][symbol]["purchase_price"] * 1.5,
-        )
-        amount = shares * selling_price
+        amount = shares * self.investments["stock"][symbol]["selling_price"]
         self.addCash(amount)
         self.transactions.append(f"{symbol} Stock Sale : {amount}\n")
 
     def buyMutualFund(self, shares, mf):
         self.investments["mutual_funds"][mf.symbol] = {
             "shares": shares,
+            "selling_price": mf.sell(),
         }
         self.withdrawCash(shares)
         self.transactions.append(f"{mf.symbol} MF Purchase : \t{shares}\n")
 
     def sellMutualFund(self, symbol, shares):
         self.investments["mutual_funds"][symbol]["shares"] -= shares
-        amount = shares * uniform(0.9, 1.2)
+        amount = shares * self.investments["mutual_funds"][symbol]["selling_price"]
         self.addCash(amount)
         self.transactions.append(f"{symbol} MF Sale : {amount}\n")
 
@@ -81,10 +74,16 @@ class Stock:
         self.symbol = symbol
         self.price = price
 
+    def sell(self):
+        return uniform(self.price * 0.5, self.price * 1.5)
+
 
 class MutualFund:
     def __init__(self, symbol):
         self.symbol = symbol
+
+    def sell(self):
+        return uniform(0.9, 1.2)
 
 
 # Testing
