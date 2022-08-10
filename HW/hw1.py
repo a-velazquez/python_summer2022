@@ -12,7 +12,7 @@ from random import uniform
 
 class Portfolio:
     def __init__(self):
-        self.investments = {"cash": 0, "stock": 0, "mutual_funds": 0}
+        self.investments = {"cash": 0, "stock": {}, "mutual_funds": {}}
         self.transactions = []
 
     def addCash(self, amount):
@@ -29,6 +29,18 @@ class Portfolio:
         for asset, amount in self.investments.items():
             portfolio_str += f"{asset} : {amount}\n"
         return portfolio_str
+
+    def buyStock(self, shares: int, stock):
+        self.investments["stock"][stock.symbol] = shares
+        amount = shares * stock.price
+        self.withdrawCash(amount)
+        self.transactions.append(f"Stock Purchase : \t{amount}\n")
+
+    def sellStock(self, shares: int, stock):
+        self.investments["stock"][stock.symbol] -= shares
+        amount = shares * stock.sell()
+        self.addCash(amount)
+        self.transactions.append(f"Stock Sale : {amount}\n")
 
 
 class Stock:
