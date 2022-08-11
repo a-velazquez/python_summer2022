@@ -1,9 +1,13 @@
 import unittest
+<<<<<<< HEAD
 import os
 
 os.chdir("./Documents/GitHub/python_summer2022/Day3/Lab")
 
 from lab03 import *
+=======
+from lab03 import * # needs to be same wd as lab03.py
+>>>>>>> f530330142add644bce33598475f97ce2fe1dd05
 
 
 class labTests(unittest.TestCase):
