@@ -16,19 +16,18 @@ class Portfolio:
         self.investments = {"cash": 0, "stock": {}, "mutual_funds": {}}
         self.transactions = []
 
-    def addCash(self, amount):
+    def addCash(self, amount, transaction_nm="Cash Transaction"):
         self.investments["cash"] += amount
         if amount < 0:
-            self.transactions.append(f"Cash Transaction : \t{amount}\n")
-        else:
-            self.transactions.append(f"Cash Transaction : {amount}\n")
+            amount = "\t" + str(amount)
+        self.transactions.append(f"{transaction_nm} : {amount}\n")
 
-    def withdrawCash(self, amount):
-        self.addCash(-1 * amount)
+    def withdrawCash(self, amount, transaction_nm="Cash Transaction"):
+        self.addCash(-1 * amount, transaction_nm)
 
     def __str__(self):
         # fix: display with $ and 2 decimal places
-        portfolio_str = "\nInvestments\n" + "-----------\n"
+        portfolio_str = "\Holdings\n" + "-----------\n"
         portfolio_str += "Cash: $" + str(round(self.investments["cash"], 2)) + "\n"
         portfolio_str += "Stocks:\n"
         for symbol, info in self.investments["stock"].items():
@@ -49,8 +48,7 @@ class Portfolio:
             "purchase_price": stock.price,
         }
         amount = shares * stock.price
-        self.withdrawCash(amount)
-        self.transactions.append(f"{stock.symbol} Stock Purchase : \t{amount}\n")
+        self.withdrawCash(amount, transaction_nm=f"{stock.symbol} Stock Purchase")
 
     def sellStock(self, symbol, shares: int):
         self.investments["stock"][symbol]["shares"] -= shares
@@ -58,22 +56,19 @@ class Portfolio:
             self.investments["stock"][symbol]["purchase_price"] * 0.5,
             self.investments["stock"][symbol]["purchase_price"] * 1.5,
         )
-        amount = shares * selling_price
-        self.addCash(amount)
-        self.transactions.append(f"{symbol} Stock Sale : {amount}\n")
+        amount = round(shares * selling_price, 2)
+        self.addCash(amount, transaction_nm=f"{symbol} Stock Sale")
 
     def buyMutualFund(self, shares, mf):
         self.investments["mutual_funds"][mf.symbol] = {
             "shares": shares,
         }
-        self.withdrawCash(shares)
-        self.transactions.append(f"{mf.symbol} MF Purchase : \t{shares}\n")
+        self.withdrawCash(shares, transaction_nm=f"{mf.symbol} MF Purchase")
 
     def sellMutualFund(self, symbol, shares):
         self.investments["mutual_funds"][symbol]["shares"] -= shares
-        amount = shares * uniform(0.9, 1.2)
-        self.addCash(amount)
-        self.transactions.append(f"{symbol} MF Sale : {amount}\n")
+        amount = round(shares * uniform(0.9, 1.2), 2)
+        self.addCash(amount, transaction_nm=f"{symbol} MF Sale")
 
 
 class Stock:

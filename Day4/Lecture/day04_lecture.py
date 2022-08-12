@@ -251,7 +251,7 @@ from selenium.webdriver.common.keys import Keys
 
 # Interactive example:
 
-driver_path = '/Users/miame/Documents/GitHub/python_summer2022/Day4/Lecture/chromedriver'
+driver_path = '/Users/almavelazquez/Documents/GitHub/python_summer2022/Day4/Lecture/chromedriver'
 driver = webdriver.Chrome(driver_path)
 
 # start the web drivers
@@ -310,7 +310,7 @@ import sys
 import os
 
 # Set WD
-os.chdir('C:\\Users\\miame\\Documents\\GitHub\\python_summer2022\\Day4\\Lecture')
+os.chdir('./Documents/GitHub/python_summer2022/Day4/Lecture')
 
 # Read all lines as one string
 with open('readfile.txt') as f:
