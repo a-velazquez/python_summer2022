@@ -17,7 +17,7 @@ pattern = r"^((?!the).)*$"
 for l in obama:
     if re.search(pattern, l):
         print(l)
-
+# should have 86
 
 # TODO: print lines that contain a word of any length starting with s and ending with e
 
