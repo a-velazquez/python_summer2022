@@ -15,6 +15,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 import random
 import time
+import csv
 
 biden_speeches = {
     "date": [],
@@ -22,6 +23,15 @@ biden_speeches = {
     "full_text": [],
     "endnotes": [],
 }
+
+
+top_link = "https://www.presidency.ucsb.edu/advanced-search?field-keywords=&field-keywords2=&field-keywords3=&from%5Bdate%5D=01-20-2021&to%5Bdate%5D=&person2=200320&category2%5B0%5D=8&items_per_page=100"
+top_page = urllib.request.urlopen(top_link)
+
+soup = BeautifulSoup(top_page.read())
+
+soup.find_all("h3")
+soup.find_all("div", {"class": "view-header"})
 
 
 def scrape_results_page(web_address):
@@ -86,3 +96,9 @@ def scrape_results_page(web_address):
 
         time.sleep(random.uniform(1, 8))
         print("Pause Ended")
+
+
+with open("biden_speeches.csv", "w") as outfile:
+    writer = csv.writer(outfile)
+    writer.writerow(biden_speeches.keys())
+    writer.writerows(zip(*biden_speeches.values()))
