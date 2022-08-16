@@ -10,95 +10,123 @@ Created on Fri Aug 12 15:55:14 2022
 
 from bs4 import BeautifulSoup
 import urllib.request
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.keys import Keys
+from datetime import date
 import random
 import time
 import csv
-
-biden_speeches = {
-    "date": [],
-    "title": [],
-    "full_text": [],
-    "endnotes": [],
-}
+import re
 
 
-top_link = "https://www.presidency.ucsb.edu/advanced-search?field-keywords=&field-keywords2=&field-keywords3=&from%5Bdate%5D=01-20-2021&to%5Bdate%5D=&person2=200320&category2%5B0%5D=8&items_per_page=100"
+today = str(date.today().strftime("%m-%d-%Y"))
+
+top_link = f"https://www.presidency.ucsb.edu/advanced-search?field-keywords=&field-keywords2=&field-keywords3=&from%5Bdate%5D=01-20-2021&to%5Bdate%5D={today}&person2=200320&category2%5B0%5D=8&items_per_page=100"
 top_page = urllib.request.urlopen(top_link)
 
 soup = BeautifulSoup(top_page.read())
 
-soup.find_all("h3")
-soup.find_all("div", {"class": "view-header"})
+h3 = soup.find_all("h3")
+
+results = int(re.findall(r"\d+", h3[2].text)[-1])
+
+# number of pages to iterate over
+if results % 100 != 0:
+
+    pages = (results // 100) + 1
+
+else:
+
+    pages = results // 100
 
 
-def scrape_results_page(web_address):
+def advance_page(web_address):
+    """Docstring"""
 
     web_page = urllib.request.urlopen(web_address)
 
     speech_soup = BeautifulSoup(web_page.read())
 
-    all_dates = speech_soup.find_all(
-        "td",
-        {
-            "class": "views-field views-field-field-docs-start-date-time-value text-nowrap"
-        },
-    )
-
-    biden_speeches["date"] = [date.text.replace("\n", "").strip() for date in all_dates]
-
     all_titles = speech_soup.find_all("td", {"class": "views-field views-field-title"})
-
-    biden_speeches["title"] = [
-        title.text.replace("\n", "").strip() for title in all_titles
-    ]
 
     txt_links = [
         "https://www.presidency.ucsb.edu" + title.find_all("a")[0]["href"]
         for title in all_titles
     ]
 
-    for link in txt_links:
+    return txt_links
 
-        page = urllib.request.urlopen(link)
 
-        temp_soup = BeautifulSoup(page.read())
+def scrape_results_page(link):
+    """Docstring"""
 
-        content = temp_soup.find_all("div", {"class": "field-docs-content"})
+    speech = {}
 
-        txt = ""
-        for line in content:
-            txt += line.text.replace("\n", " ").strip()
+    page = urllib.request.urlopen(link)
 
-        biden_speeches["full_text"].append(txt)
+    temp_soup = BeautifulSoup(page.read())
 
-        notes = temp_soup.find_all("div", {"class": "field-docs-footnote"})
-        cites = temp_soup.find_all("div", {"class": "field-prez-document-citation"})
+    speech["date"] = temp_soup.find_all("span", {"class": "date-display-single"})[
+        0
+    ].text
 
-        endnotes = ""
-        if len(notes) != 0:
-            for note in notes:
-                endnotes += note.text.replace("\n", " ").strip()
-        else:
-            endnotes += "No footnotes"
+    speech["title"] = temp_soup.find_all("h1")[0].text
 
-        endnotes += " /n "
+    content = temp_soup.find_all("div", {"class": "field-docs-content"})
 
-        if len(cites) != 0:
-            for cite in cites:
-                endnotes += cite.text.replace("\n", " ").strip()
-        else:
-            endnotes += "No citations"
+    txt = ""
+    for line in content:
+        txt += line.text.replace("\n", " ").strip()
 
-        biden_speeches["endnotes"].append(endnotes)
+    speech["full_text"] = txt
 
-        time.sleep(random.uniform(1, 8))
-        print("Pause Ended")
+    notes = temp_soup.find_all("div", {"class": "field-docs-footnote"})
+    cites = temp_soup.find_all("div", {"class": "field-prez-document-citation"})
+
+    endnotes = ""
+    if len(notes) != 0:
+        for note in notes:
+            endnotes += note.text.replace("\n", " ").strip()
+    else:
+        endnotes += "No footnotes"
+
+    endnotes += " /n "
+
+    if len(cites) != 0:
+        for cite in cites:
+            endnotes += cite.text.replace("\n", " ").strip()
+    else:
+        endnotes += "No citations"
+
+    speech["endnotes"] = endnotes
+
+    time.sleep(random.uniform(1, 5))
+
+    return speech
 
 
 with open("biden_speeches.csv", "w") as outfile:
-    writer = csv.writer(outfile)
-    writer.writerow(biden_speeches.keys())
-    writer.writerows(zip(*biden_speeches.values()))
+    w = csv.DictWriter(outfile, fieldnames=("date", "title", "full_text", "endnotes"))
+    w.writeheader()
+
+    pg = 0
+    speech = 0
+
+    for i in range(0, pages):
+
+        print(f"Now on results page {pg} out of {pages}")
+
+        if i == 0:
+            results_page = top_link
+        else:
+            results_page = top_link + f"&page={i}"
+
+        text_links = advance_page(results_page)
+
+        for l in text_links:
+
+            print(f"Now on speech {speech} out of {results}")
+
+            w.writerow(scrape_results_page(l))
+
+            speech += 1
+
+        pg += 1
