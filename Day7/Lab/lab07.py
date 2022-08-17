@@ -7,83 +7,79 @@ from sqlalchemy.orm import relationship, backref, sessionmaker
 
 # Setting things up:
 
-engine = sqlalchemy.create_engine('sqlite:///geog.db', echo=False)
+engine = sqlalchemy.create_engine("sqlite:///geog.db", echo=False)
 
-Base = declarative_base() 
+Base = declarative_base()
 
 # Schemas
 class Region(Base):
-  __tablename__ = 'regions'
+    __tablename__ = "regions"
 
-  id = Column(Integer, primary_key=True)
-  name = Column(String)
-  departments = relationship("Department", backref = "region")
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    departments = relationship("Department", backref="region")
 
-  def __init__(self, name):
-    self.name = name 
+    def __init__(self, name):
+        self.name = name
 
-  def __repr__(self):
-    return "<Region('%s')>" % self.id 
-
+    def __repr__(self):
+        return "<Region('%s')>" % self.id
 
 
 class Department(Base):
-  __tablename__ = 'departments'
+    __tablename__ = "departments"
 
-  id = Column(Integer, primary_key=True)
-  deptname = Column(String)
-  region_id = Column(Integer, ForeignKey('regions.id')) 
-  towns = relationship("Town", backref = "department")
+    id = Column(Integer, primary_key=True)
+    deptname = Column(String)
+    region_id = Column(Integer, ForeignKey("regions.id"))
+    towns = relationship("Town", backref="department")
 
-  def __init__(self, deptname):
-    self.deptname = deptname 
+    def __init__(self, deptname):
+        self.deptname = deptname
 
-  def __repr__(self):
-    return "<Department('%s')>" % self.id 
-
+    def __repr__(self):
+        return "<Department('%s')>" % self.id
 
 
 class Town(Base):
-  __tablename__ = 'towns'
+    __tablename__ = "towns"
 
-  id = Column(Integer, primary_key=True)
-  name = Column(String)
-  population = Column(Integer)
-  dept_id = Column(Integer, ForeignKey('departments.id'))
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    population = Column(Integer)
+    dept_id = Column(Integer, ForeignKey("departments.id"))
 
-  def __init__(self, name, population):
-    self.name = name 
-    self.population = population
+    def __init__(self, name, population):
+        self.name = name
+        self.population = population
 
-  def __repr__(self):
-    return "<Town('%s')>" % (self.name)
-
-
+    def __repr__(self):
+        return "<Town('%s')>" % (self.name)
 
 
-#First time create tables
-Base.metadata.create_all(engine) 
+# First time create tables
+Base.metadata.create_all(engine)
 
-#Create a session to actually store things in the db
+# Create a session to actually store things in the db
 Session = sessionmaker(bind=engine)
 session = Session()
 
 # Create regions
-reg1 = Region('Region 1')
-reg2 = Region('Region 2')
-reg3 = Region('Region 3')
+reg1 = Region("Region 1")
+reg2 = Region("Region 2")
+reg3 = Region("Region 3")
 
 # Create departments, nested in regions
-dept1 = Department('Department 1')
+dept1 = Department("Department 1")
 reg1.departments.append(dept1)
 
-dept2 = Department('Department 2')
+dept2 = Department("Department 2")
 reg1.departments.append(dept2)
 
-dept3 = Department('Department 3')
+dept3 = Department("Department 3")
 reg3.departments.append(dept3)
 
-dept4 = Department('Department 4')
+dept4 = Department("Department 4")
 reg2.departments.append(dept4)
 
 
@@ -111,42 +107,78 @@ session.add_all([t1, t2, t3, t4, t5, t6, t7, t8])
 
 session.commit()
 
-# Some example querying 
+# Some example querying
 for town in session.query(Town).order_by(Town.id):
-  print(town.id, town.name, town.population)
+    print(town.id, town.name, town.population)
 
+from sqlalchemy import func
 
-
-# TODO: 
+# TODO:
 # 1. Display, by department, the cities having
 #    more than 50,000 inhabitants.
 
+for town in (
+    session.query(Town)
+    .join(Department)
+    .filter(Town.population > 50000)
+    .order_by(Department.id)
+):
+    print(town.name, town.population)
 
 # 2. Display the towns with the minimum population in each region
 # print town name, population, region name
 # Hint: subqueries
 
+subquery = (
+    session.query(func.min(Town.population).label("min"))
+    .join(Department)
+    .join(Region)
+    .group_by(Region.name)
+    .subquery()
+)
+
+
+for town in (
+    session.query(Town)
+    .join(Department)
+    .join(Region)
+    .filter(subquery.c.min == Town.population)
+):
+    print(town.name, town.population, town.department.region)
+
 
 # 3. Display the total number of inhabitants
 #    per department using only a query (no lists!)
 
-  
+subquery2 = (
+    session.query(func.sum(Town.population).label("sum"))
+    .join(Department)
+    .group_by(Department.id)
+    .subquery()
+)
 
+sum_query = (
+    session.query(Department.id, func.sum(Town.population).label("total"))
+    .join(Department)
+    .group_by(Department.id)
+    .all()
+)
 
-
+for dept in sum_query:
+    print(dept.id, dept.total)
 
 # Copyright (c) 2014 Matt Dickenson
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
