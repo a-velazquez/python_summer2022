@@ -53,33 +53,38 @@ def get_info(id_list):
         print(f"Now on user {counter} of {total}")
 
         users = {}
+        try:
+            usr = api.get_user(user_id=uid)
 
-        usr = api.get_user(user_id=uid)
+            users["screen_name"] = usr.screen_name
+            users["user_id"] = usr.id
+            users["n_tweets"] = usr.statuses_count
+            users["n_followers"] = usr.followers_count
+            users["n_friends"] = usr.friends_count
 
-        users["screen_name"] = usr.screen_name
-        users["user_id"] = usr.id
-        users["n_tweets"] = usr.statuses_count
-        users["n_followers"] = usr.followers_count
-        users["n_friends"] = usr.friends_count
+            if usr.followers_count < 100:
+                # layman
+                users["layman"] = True
+                users["expert"] = False
+                users["celebrity"] = False
+            elif usr.followers_count > 1000:
+                # celebrity
+                users["layman"] = False
+                users["expert"] = False
+                users["celebrity"] = True
+            else:
+                # expert
+                users["layman"] = False
+                users["expert"] = True
+                users["celebrity"] = False
 
-        if usr.followers_count < 100:
-            # layman
-            users["layman"] = True
-            users["expert"] = False
-            users["celebrity"] = False
-        elif usr.followers_count > 1000:
-            # celebrity
-            users["layman"] = False
-            users["expert"] = False
-            users["celebrity"] = True
-        else:
-            # expert
-            users["layman"] = False
-            users["expert"] = True
-            users["celebrity"] = False
+            all_users.append(users)
 
-        all_users.append(users)
-        time.sleep(random.uniform(5, 10))
+            time.sleep(random.uniform(5, 10))
+
+        except tweepy.errors.TwitterServerError:
+
+            return all_users
 
     return all_users
 
@@ -136,7 +141,14 @@ def one_degree_separation(screen_nm):
             .iloc[0]["n_tweets"]
         )
 
-    return answers
+    return answers, followers, friends
 
 
-results = one_degree_separation("@WUSTLPoliSci")
+results, followers_df, friends_df = one_degree_separation("@WUSTLPoliSci")
+
+""" {'most_active_follower': {'user': 'TheNjoroge', 'tweets': 171008},
+ 'most_popular_follower': {'user': 'mariapaularomo', 'followers': 357041},
+ 'most_active_friends': {'layman': {'user': 'usmanfalalu1', 'tweets': 1440},
+  'celebrity': {'user': 'nytimes', 'tweets': 481384},
+  'expert': {'user': 'prof_nokken', 'tweets': 20334}},
+ 'most_popular_friend': {'user': 'BarackObama', 'followers': 132544268}} """
