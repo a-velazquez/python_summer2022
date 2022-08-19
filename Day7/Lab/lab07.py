@@ -123,7 +123,7 @@ for town in (
     .filter(Town.population > 50000)
     .order_by(Department.id)
 ):
-    print(town.name, town.population)
+    print(town.department.id, town.name, town.population)
 
 # 2. Display the towns with the minimum population in each region
 # print town name, population, region name
