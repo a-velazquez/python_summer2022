@@ -39,7 +39,7 @@ print(sum([len(ring[node]) for node in ring.keys()]) / 2)
 
 ## Grid Network
 ## TODO: create a square graph with 9 nodes using the makeLink function (from above)
-## Example: https://www.mathworks.com/matlabcentral/answers/213955-how-to-determine-the-neighbours-of-each-node-in-a-square-graph
+## Example: https://www.researchgate.net/profile/Mehdi-Zaferanieh/publication/344188550/figure/fig2/AS:940265934184449@1601188276248/The-grid-network-with-9-nodes_Q320.jpg
 
 
 def make_square(n_nodes):
