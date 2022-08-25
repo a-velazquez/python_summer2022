@@ -16,7 +16,7 @@ from random import randint
 input_arr = [3, 4, 5, 6, 2, 1]
 
 #### Tree Sort
-### Reference:
+### Reference: https://www.geeksforgeeks.org/tree-sort/
 
 ## define helper functions
 def insert(tree, k):
@@ -78,13 +78,17 @@ print(test_tree)
 
 
 #### Bubble Sort
-### Reference:
+### Reference: Day 08 Lecture Notes
 
-## define helper functions
+## define helper function
 def listswap(list, index_1, index_2):
+    """Given a list and 2 of its index positions, return
+    the list with the indices reversed."""
 
+    # define pair of indexed list items
     temp_tuple = list[index_1], list[index_2]
 
+    # re-define swapped list indices, modifying the list
     list[index_2], list[index_1] = temp_tuple
 
     return list
@@ -92,6 +96,8 @@ def listswap(list, index_1, index_2):
 
 ## define sorting algorithm
 def bubblesort(original_list):
+    """Sorts an unordered list using the bubble sort algorithm. """
+
     # make a copy to prevent modifying in place; new list will be the new sorted list
     new_list = original_list.copy()
     # iterate over list as many times as there are elements
