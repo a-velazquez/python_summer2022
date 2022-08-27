@@ -213,9 +213,6 @@ class LinkedList:
             # increment counter
             counter += 1
 
-        # assign end counter value to length attribute
-        self.length = counter
-
         # return end counter value
         return counter
 
@@ -246,7 +243,7 @@ class LinkedList:
         self.head = prev_node
 
 
-## tests
+### tests
 ll1 = LinkedList()
 ll1.addNode("h")
 ll1.addNode(9)
@@ -279,4 +276,36 @@ ll1.removeNodesByValue("h")
 
 ll1.reverse()
 
-# computational complexity
+# ## computational complexity
+
+# # __init__: The way I've defined the LinkedList constructor, initializing one
+# will always assign None to the head node. The constructor therefore has constant
+# complexity, O(1).
+
+# # length: The counter within this function increments by 1 for every item
+# in the LinkedList. Since this requires iterating once over every element,
+# this method likely has linear complexity, O(n).
+
+# # addNode: Much like length(), this reqires iterating once over every element in the LinkedList,
+# so it likely has linear complexity, O(n).
+
+# # addNodeAfter/addNodeBefore: These two methods do not necessarily iterate over all or even many
+# of the nodes in the LinkedList and instead depend on the value of the node index passed to
+# them. For a given node index, because time complexity does not necessarily increase with the size of the
+# LinkedList, these methods will have constant complexity, O(1). However, if we allow node indices to vary,
+# larger LinkedLists will inevitably lead to larger index values passed, and in that
+# sense they will have linear complexity, O(n).
+
+# # removeNode: This method is a lot like the above 2 and either has linear complexity, O(n),
+# or constant complexity, O(1) depending on how the index value input is considered.
+
+# # removeNodeByValue: Because this method depends on a recursive function, it's likely
+# to have exponential complexity, O(2^n).
+
+# # reverse: Reversing requires iterating once over every node in the LinkedList, and
+# so has linear complexity, O(n).
+
+
+# For most of these, the constraint on using other data types effectively requires
+# iterating over all the elements, and in the case of removeNodeByValue(), changing
+# references as nodes get removed also require the use of a recursive function.
