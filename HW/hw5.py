@@ -103,6 +103,10 @@ class LinkedList:
         position, indexed from 0. Helper function for several 
         methods of class LinkedList. """ ""
 
+        # this error will surface in addNodeAfter if non-integer node position passed
+        if not isinstance(position, int):
+            raise TypeError("node must be indexed with an integer.")
+
         # set starting current node as head node
         curr_node = self.head
 
@@ -134,35 +138,53 @@ class LinkedList:
         """Inserts a new node of given value before the position indicated, 
         indexed from 0."""
 
-        # need the node before the before_node, to reassign its .next
-        prev_node = self.getNode(before_node - 1)
-
-        # the before_node will be this node's .next
-        curr_node = prev_node.next
+        # raise informative error instead of "unsupported operand"
+        if not isinstance(before_node, int):
+            raise TypeError("node must be indexed with an integer.")
 
         # create a new node
         new_node = Node(new_value)
 
-        # assign the .next of the new node to be the current node
-        new_node.next = curr_node
+        # address this unique case
+        if before_node == 0:
 
-        # the node before the before_node's .next is now the new node, front-appended to the before_node
-        prev_node.next = new_node
+            new_node.next = self.head
+
+            self.head = new_node
+
+        else:
+            # need the node before the before_node, to reassign its .next
+            prev_node = self.getNode(before_node - 1)
+
+            # the before_node will be this node's .next
+            curr_node = prev_node.next
+
+            # assign the .next of the new node to be the current node
+            new_node.next = curr_node
+
+            # the node before the before_node's .next is now the new node, front-appended to the before_node
+            prev_node.next = new_node
 
     def removeNode(self, node_to_remove):
         """Remove the node at the indicated position. """
 
-        # need the node before the node desired for removal
-        prev_node = self.getNode(node_to_remove - 1)
+        # address this unique case
+        if node_to_remove == 0:
 
-        # assign its .next as the current node
-        curr_node = prev_node.next
+            self.head = self.head.next
 
-        # assign to the .next of the previous node the .next of node to remove, so everything after it is kept
-        prev_node.next = curr_node.next
+        else:
+            # need the node before the node desired for removal
+            prev_node = self.getNode(node_to_remove - 1)
 
-        # nullify
-        curr_node = None
+            # assign its .next as the current node
+            curr_node = prev_node.next
+
+            # assign to the .next of the previous node the .next of node to remove, so everything after it is kept
+            prev_node.next = curr_node.next
+
+            # nullify
+            curr_node = None
 
     def removeNodesByValue(self, value):
         """"Remove all nodes whose values match the target value given. """ ""
@@ -171,7 +193,7 @@ class LinkedList:
         self.head = self.head.delNode(value)
 
     def length(self):
-        """."""
+        """Return current length of the LinkedList object. """
 
         # set start value of current node to be the head node
         curr_node = self.head
@@ -223,23 +245,32 @@ class LinkedList:
 
 ## tests
 ll1 = LinkedList()
-ll1.addNode(6)
+ll1.addNode("h")
 ll1.addNode(9)
 ll1.addNode(11)
 ll1.addNode(16)
 ll1.addNode(16)
-ll1.addNode(16)
-ll1.addNode(16)
+ll1.addNode(5)
+ll1.addNode(18)
 
 print(ll1)
 ll1.length()
 
-ll1.addNodeBefore(7, 2)
-ll1.addNodeAfter(7, 2)
+# uncomment to test error handling
+# ll1.addNodeBefore(7, "y")
+# ll1.addNodeAfter(7, "h")
 
-ll1.removeNode(4)
+
+ll1.addNodeBefore(7, 0)
+ll1.addNodeBefore(12, 1)
+ll1.addNodeAfter(9, 0)
+
+ll1.removeNode(0)
+print(ll1)
+
 
 ll1.removeNodesByValue(7)
 ll1.removeNodesByValue(16)
+ll1.removeNodesByValue("h")
 
 ll1.reverse()
