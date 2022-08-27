@@ -44,6 +44,9 @@ class Node:
 
 
 class LinkedList:
+    """The following methods allow LinkedLists to contain mixed data types
+    with no errors. See tests below. """
+
     def __init__(self):
         """Constructor for class LinkedList. Instantiates a default head value
         of None. """
@@ -252,6 +255,7 @@ ll1.addNode(16)
 ll1.addNode(16)
 ll1.addNode(5)
 ll1.addNode(18)
+ll1.addNode(["lists", "too"])
 
 print(ll1)
 ll1.length()
@@ -274,3 +278,5 @@ ll1.removeNodesByValue(16)
 ll1.removeNodesByValue("h")
 
 ll1.reverse()
+
+# computational complexity
