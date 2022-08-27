@@ -68,9 +68,8 @@ class LinkedList:
             # set next attribute of last node to new node
             last_node.next = Node(new_value)
 
-        # if no head node exists, assign this node to it
         else:
-
+            # if no head node exists, assign this node to it
             self.head = Node(new_value)
 
     def __str__(self):
@@ -116,20 +115,24 @@ class LinkedList:
         return curr_node
 
     def addNodeAfter(self, new_value, after_node):
+        """Inserts a new node of given value after the position indicated, 
+        indexed from 0."""
 
         # traverse the necessary number of nodes to get the after_node
         curr_node = self.getNode(after_node)
 
-        # create a new node
+        # create a new node,
         new_node = Node(new_value)
 
-        # whose next will be everything that comes after the after_node
+        # whose .next will be everything that comes after the after_node
         new_node.next = curr_node.next
 
-        # the after_node's next is the new node's next (everything we just appended after it)
+        # the after_node's .next is the new node's .next (everything we just appended after it)
         curr_node.next = new_node
 
     def addNodeBefore(self, new_value, before_node):
+        """Inserts a new node of given value before the position indicated, 
+        indexed from 0."""
 
         # need the node before the before_node, to reassign its .next
         prev_node = self.getNode(before_node - 1)
@@ -140,63 +143,90 @@ class LinkedList:
         # create a new node
         new_node = Node(new_value)
 
+        # assign the .next of the new node to be the current node
         new_node.next = curr_node
 
+        # the node before the before_node's .next is now the new node, front-appended to the before_node
         prev_node.next = new_node
 
     def removeNode(self, node_to_remove):
+        """Remove the node at the indicated position. """
 
+        # need the node before the node desired for removal
         prev_node = self.getNode(node_to_remove - 1)
 
+        # assign its .next as the current node
         curr_node = prev_node.next
 
+        # assign to the .next of the previous node the .next of node to remove, so everything after it is kept
         prev_node.next = curr_node.next
 
+        # nullify
         curr_node = None
 
     def removeNodesByValue(self, value):
-        """". """ ""
+        """"Remove all nodes whose values match the target value given. """ ""
 
+        # call the delNode method on the head node, which traverses all its children looking for matches; reassign head node
         self.head = self.head.delNode(value)
 
     def length(self):
+        """."""
 
+        # set start value of current node to be the head node
         curr_node = self.head
+
+        # start the counter at 1
         counter = 1
 
+        # until there is no next node,
         while curr_node.next != None:
 
+            # advance to the next node
             curr_node = curr_node.next
+
+            # increment counter
             counter += 1
 
+        # assign end counter value to length attribute
         self.length = counter
 
+        # return end counter value
         return counter
 
     def reverse(self):
-
+        """Reverses the node order of a LinkedList object. """
+        # instantiate empty previous node
         prev_node = None
 
+        # start value of current node is head node
         curr_node = self.head
 
+        # until there is no next node,
         while curr_node != None:
 
+            # create a "next node" that has everything after current node
             next_node = curr_node.next
 
+            # assign everything after the current node to be previous node
             curr_node.next = prev_node
 
+            # now advance previous node to current
             prev_node = curr_node
 
+            # advance current node to next node
             curr_node = next_node
 
+        # assign the ending previous node to the head of LinkedList
         self.head = prev_node
 
 
+## tests
 ll1 = LinkedList()
-node0 = ll1.addNode(6)
-node1 = ll1.addNode(9)
-node2 = ll1.addNode(11)
-node3 = ll1.addNode(16)
+ll1.addNode(6)
+ll1.addNode(9)
+ll1.addNode(11)
+ll1.addNode(16)
 ll1.addNode(16)
 ll1.addNode(16)
 ll1.addNode(16)
